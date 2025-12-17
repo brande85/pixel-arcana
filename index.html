@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pixel Arcana - Video Game Tarot</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>⚔️ PIXEL ARCANA ⚔️</h1>
+            <p class="subtitle">A Video Game Tarot Journey</p>
+        </header>
+        
+        <div class="nav-buttons">
+            <button onclick="showView('daily')" class="active" id="dailyBtn">Daily Draw</button>
+            <button onclick="showView('spread')" id="spreadBtn">Spreads</button>
+            <button onclick="showView('calendar')" id="calendarBtn">Calendar</button>
+            <button onclick="showView('gallery')" id="galleryBtn">Card Gallery</button>
+            <button onclick="showView('gameIndex')" id="gameIndexBtn">Game Index</button>
+            <button onclick="showView('settings')" id="settingsBtn">Settings</button>
+        </div>
+        
+        <!-- Daily Draw View -->
+        <div id="daily" class="view active">
+            <div class="info-text">
+                ✨ Draw your daily card and receive guidance from the gaming gods ✨
+            </div>
+            
+            <div class="draw-button-container">
+                <button onclick="drawDailyCard()">Draw Today's Card</button>
+            </div>
+            
+            <div id="dailyCardContainer"></div>
+        </div>
+        
+        <!-- Spread View -->
+        <div id="spread" class="view">
+            <div class="info-text" id="spreadInfoText">
+                ✨ Choose a spread to explore different aspects of your journey ✨
+            </div>
+            
+            <div class="spread-selector">
+                <label for="spreadType">Choose Your Spread:</label>
+                <select id="spreadType" onchange="updateSpreadDescription()">
+                    <optgroup label="One Card">
+                        <option value="one-question">One Question</option>
+                    </optgroup>
+                    <optgroup label="Three Cards">
+                        <option value="past-present-future">Past • Present • Future</option>
+                        <option value="stop-start-continue">Stop • Start • Continue</option>
+                        <option value="mind-body-spirit">Mind • Body • Spirit</option>
+                        <option value="situation-action-outcome">Situation • Action • Outcome</option>
+                    </optgroup>
+                    <optgroup label="Complex Spreads">
+                        <option value="celtic-cross">Celtic Cross (10 Cards)</option>
+                    </optgroup>
+                </select>
+                <button onclick="drawSpread()">Draw Spread</button>
+            </div>
+            
+            <div id="spreadContainer" class="spread-container"></div>
+        </div>
+        
+        <!-- Calendar View -->
+        <div id="calendar" class="view">
+            <div class="info-text">
+                ✨ Review your past daily draws ✨
+            </div>
+            
+            <div class="calendar-controls">
+                <button onclick="changeMonth(-1)">← Previous</button>
+                <span id="currentMonth"></span>
+                <button onclick="changeMonth(1)">Next →</button>
+            </div>
+            
+            <div id="calendarGrid" class="calendar"></div>
+            
+            <div id="calendarCardDisplay"></div>
+            
+            <!-- Stats Section -->
+            <div id="calendarStats" class="calendar-stats"></div>
+        </div>
+        
+        <!-- Gallery View -->
+        <div id="gallery" class="view">
+            <div class="info-text">
+                ✨ Browse the Complete Pixel Arcana Deck ✨
+            </div>
+            
+            <div class="gallery-search">
+                <input 
+                    type="text" 
+                    id="gallerySearch" 
+                    placeholder="Search by card name, game, or keyword..." 
+                    oninput="searchGallery(this.value)"
+                >
+            </div>
+            
+            <div class="gallery-filters">
+                <button onclick="filterGallery('all')" class="active" id="filter-all">All Cards</button>
+                <button onclick="filterGallery('major')" id="filter-major">Major Arcana</button>
+                <button onclick="filterGallery('wands')" id="filter-wands">Wands</button>
+                <button onclick="filterGallery('cups')" id="filter-cups">Cups</button>
+                <button onclick="filterGallery('swords')" id="filter-swords">Swords</button>
+                <button onclick="filterGallery('pentacles')" id="filter-pentacles">Pentacles</button>
+            </div>
+            
+            <div class="gallery-orientation-toggle">
+                <span class="toggle-label">Show:</span>
+                <button onclick="setGalleryOrientation('upright')" class="orientation-btn active" id="orientation-upright">Upright</button>
+                <button onclick="setGalleryOrientation('reversed')" class="orientation-btn" id="orientation-reversed">Reversed</button>
+                <button onclick="setGalleryOrientation('both')" class="orientation-btn" id="orientation-both">Both</button>
+            </div>
+            
+            <div id="galleryGrid" class="gallery-grid"></div>
+        </div>
+        
+        <!-- Game Index View -->
+        <div id="gameIndex" class="view">
+            <div class="info-text">
+                ✨ Explore Cards by Game ✨
+            </div>
+            
+            <div class="game-index-search">
+                <input 
+                    type="text" 
+                    id="gameIndexSearch" 
+                    placeholder="Search by game name..." 
+                    oninput="searchGameIndex(this.value)"
+                >
+            </div>
+            
+            <!-- A-Z Navigation -->
+            <div class="alphabet-nav" id="gameIndexTop">
+                <button onclick="scrollToLetter('A')">A</button>
+                <button onclick="scrollToLetter('B')">B</button>
+                <button onclick="scrollToLetter('C')">C</button>
+                <button onclick="scrollToLetter('D')">D</button>
+                <button onclick="scrollToLetter('E')">E</button>
+                <button onclick="scrollToLetter('F')">F</button>
+                <button onclick="scrollToLetter('G')">G</button>
+                <button onclick="scrollToLetter('H')">H</button>
+                <button onclick="scrollToLetter('I')">I</button>
+                <button onclick="scrollToLetter('J')">J</button>
+                <button onclick="scrollToLetter('K')">K</button>
+                <button onclick="scrollToLetter('L')">L</button>
+                <button onclick="scrollToLetter('M')">M</button>
+                <button onclick="scrollToLetter('N')">N</button>
+                <button onclick="scrollToLetter('O')">O</button>
+                <button onclick="scrollToLetter('P')">P</button>
+                <button onclick="scrollToLetter('Q')">Q</button>
+                <button onclick="scrollToLetter('R')">R</button>
+                <button onclick="scrollToLetter('S')">S</button>
+                <button onclick="scrollToLetter('T')">T</button>
+                <button onclick="scrollToLetter('U')">U</button>
+                <button onclick="scrollToLetter('V')">V</button>
+                <button onclick="scrollToLetter('W')">W</button>
+                <button onclick="scrollToLetter('X')">X</button>
+                <button onclick="scrollToLetter('Y')">Y</button>
+                <button onclick="scrollToLetter('Z')">Z</button>
+            </div>
+            
+            <!-- Back to Top Button (shows when scrolled down) -->
+            <button id="backToTopBtn" class="back-to-top-btn" onclick="scrollToGameIndexTop()" style="display: none;" title="Back to Top">
+                ↑ Top
+            </button>
+            
+            <!-- Filter Controls -->
+            <div class="game-index-filters">
+                <div class="filter-group">
+                    <label>Decade:</label>
+                    <select id="decadeFilter" onchange="applyGameIndexFilters()">
+                        <option value="all">All Decades</option>
+                        <option value="1970s">1970s</option>
+                        <option value="1980s">1980s</option>
+                        <option value="1990s">1990s</option>
+                        <option value="2000s">2000s</option>
+                        <option value="2010s">2010s</option>
+                        <option value="2020s">2020s</option>
+                    </select>
+                </div>
+                
+                <div class="filter-group">
+                    <label>Genre:</label>
+                    <select id="genreFilter" onchange="applyGameIndexFilters()">
+                        <option value="all">All Genres</option>
+                    </select>
+                </div>
+                
+                <div class="filter-group">
+                    <label>Theme:</label>
+                    <select id="themeFilter" onchange="applyGameIndexFilters()">
+                        <option value="all">All Themes</option>
+                    </select>
+                </div>
+                
+                <div class="filter-group">
+                    <label>
+                        Platform: 
+                        <button class="info-button" onclick="togglePlatformInfo(event)" title="Platform Categories Info">?</button>
+                    </label>
+                    <select id="platformFilter" onchange="applyGameIndexFilters()">
+                        <option value="all">All Platforms</option>
+                    </select>
+                    <!-- Info Popup -->
+                    <div id="platformInfoPopup" class="info-popup" style="display: none;">
+                        <div class="info-popup-content">
+                            <h4>Platform Categories</h4>
+                            <div class="info-section">
+                                <strong>PC:</strong> Windows/Mac/Linux<br>
+                                <strong>Mobile:</strong> iOS/Android
+                            </div>
+                            <div class="info-section">
+                                <strong>5th Gen:</strong> PS1, N64, Saturn<br>
+                                <strong>6th Gen:</strong> PS2, GameCube, Xbox<br>
+                                <strong>7th Gen:</strong> PS3, Xbox 360, Wii<br>
+                                <strong>8th Gen:</strong> PS4, Xbox One, Switch<br>
+                                <strong>9th Gen:</strong> PS5, Xbox Series X/S
+                            </div>
+                            <div class="info-section">
+                                <strong>PC/Console:</strong> PC + consoles<br>
+                                <strong>Mobile/Console:</strong> Mobile + consoles
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <button class="clear-filters-btn" onclick="clearGameIndexFilters()">Clear Filters</button>
+            </div>
+            
+            <div class="game-index-container">
+                <div class="game-index-intro">
+                    <p>This index shows all video games featured across the Pixel Arcana deck. Click any game to see which cards it represents!</p>
+                </div>
+                <div id="gameIndexList"></div>
+            </div>
+        </div>
+        
+        <!-- Settings View -->
+        <div id="settings" class="view">
+            <div class="info-text">
+                ✨ Customize Your Pixel Arcana Experience ✨
+            </div>
+            
+            <div class="settings-container">
+                <div class="setting-item">
+                    <div class="setting-label">
+                        <h3>Enable Reversed Cards</h3>
+                        <p>When enabled, cards may appear reversed with alternate meanings</p>
+                    </div>
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="reversalsToggle" onchange="toggleReversals()">
+                        <span class="toggle-slider"></span>
+                    </label>
+                </div>
+                
+                <div class="setting-item">
+                    <div class="setting-label">
+                        <h3>⚠️ Reset All Data</h3>
+                        <p>This will clear all your daily draws, journal entries, and settings. This action cannot be undone!</p>
+                    </div>
+                    <button class="reset-button" onclick="confirmReset()">RESET EVERYTHING</button>
+                </div>
+                
+                <div class="setting-info">
+                    <p id="settingInfoText"><strong>Note:</strong> Reversals feature coming soon! Currently showing upright meanings only.</p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Card Detail Modal -->
+        <div id="cardModal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2 id="modalTitle"></h2>
+                    <span class="close" onclick="closeModal()">&times;</span>
+                </div>
+                <div id="modalBody"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- JavaScript files -->
+    <script src="tarot-deck.js"></script>
+    <script src="reversals.js"></script>
+    <script src="games-database.js"></script>
+    <script src="theme-definitions.js"></script>
+    <script src="pixel-arcana.js"></script>
+</body>
+</html>
