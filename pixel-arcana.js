@@ -59,7 +59,10 @@ const STORAGE_KEYS = {
 // Get today's date as a string (YYYY-MM-DD)
 function getTodayString() {
     const today = new Date();
-    return today.toISOString().split('T')[0];
+    const year = today.getFullYear();
+    const month = String(today.getMonth() + 1).padStart(2, '0');
+    const day = String(today.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
 }
 
 // Get stored daily draws
@@ -176,7 +179,7 @@ function displayCardSimplified(card, containerId, positionLabel = '') {
     }
     
     // Get first sentence of meaning
-    const meaning = card.gameDescription || card.meaning || '';
+    const meaning = card.meaning || card.gameDescription || '';
     const cleanMeaningForSummary = meaning.replace(/<spoiler>.*?<\/spoiler>/g, '[spoiler]').replace(/<span class="spoiler">.*?<\/span>/g, '[spoiler]');
     const summary = cleanMeaningForSummary.split('.')[0] + '.';
     
@@ -255,6 +258,9 @@ function displayCard(card, containerId, additionalInfo = '') {
         reflections = processSpoilerTags(reflectionsText.replace('Reflections:', '').trim());
         otherExamples = '';
     }
+    
+    // Count the number of examples in otherExamples
+    const exampleCount = card.otherExamples ? (card.otherExamples.match(/• <strong>/g) || []).length : 0;
     
     // Create a short summary from the meaning (first sentence) - remove spoiler tags from summary
     const cleanMeaningForSummary = meaning.replace(/<span class="spoiler">.*?<\/span>/g, '[spoiler]');
@@ -403,7 +409,7 @@ function displayCard(card, containerId, additionalInfo = '') {
                 </div>
                 
                 <button class="expand-btn" onclick="toggleSection('reflect-${containerId}')">
-                    <span class="expand-icon">▶</span> Other Game Examples
+                    <span class="expand-icon">▶</span> Other Game Examples${exampleCount > 0 ? ` (${exampleCount})` : ''}
                 </button>
                 <div id="reflect-${containerId}" class="expandable-content">${otherExamples}</div>
             </div>
@@ -547,7 +553,10 @@ function addDailyJournalSection(dateString) {
     const journals = getJournalEntries();
     const todayJournals = journals[dateString] || [];
     
-    const formattedDate = new Date(dateString).toLocaleDateString('en-US', { 
+    // Parse the date in local timezone (not UTC)
+    const [year, month, day] = dateString.split('-').map(Number);
+    const localDate = new Date(year, month - 1, day);
+    const formattedDate = localDate.toLocaleDateString('en-US', { 
         weekday: 'long',
         month: 'long',
         day: 'numeric',
@@ -638,6 +647,72 @@ const SPREAD_CONFIGS = {
         positions: ['Mind', 'Body', 'Spirit'],
         count: 3
     },
+    'situation-action-outcome': {
+        name: 'Situation • Action • Outcome',
+        description: 'What\'s happening, what to do about it, and what will result',
+        positions: ['Situation', 'Action', 'Outcome'],
+        count: 3
+    },
+    'problem-solution-outcome': {
+        name: 'Problem • Solution • Outcome',
+        description: 'Identify the challenge, discover what resolves it, and see the result',
+        positions: ['Problem', 'Solution', 'Outcome'],
+        count: 3
+    },
+    'you-them-relationship': {
+        name: 'You • Them • Relationship',
+        description: 'Understand your energy, their energy, and the dynamic between you',
+        positions: ['You', 'Them', 'The Relationship'],
+        count: 3
+    },
+    'save-point': {
+        name: 'Save Point Spread',
+        description: 'Checkpoint your journey: what you\'ve accomplished, what you\'re carrying, and what lies ahead',
+        positions: ['What You\'ve Accomplished', 'What You\'re Carrying', 'What Lies Ahead'],
+        count: 3
+    },
+    'four-seasons': {
+        name: 'The Four Seasons',
+        description: 'A cyclical view: new growth, full bloom, harvest, and rest',
+        positions: ['Spring (New Growth)', 'Summer (Full Bloom)', 'Fall (Harvest)', 'Winter (Rest)'],
+        count: 4
+    },
+    'quest-spread': {
+        name: 'Quest Spread',
+        description: 'Your RPG journey: the character you are, the quest you face, the boss to defeat, and the reward',
+        positions: ['Your Character', 'The Quest', 'The Boss', 'The Reward'],
+        count: 4
+    },
+    'swot': {
+        name: 'SWOT Analysis',
+        description: 'Assess your strengths, weaknesses, opportunities, and threats',
+        positions: ['Strengths', 'Weaknesses', 'Opportunities', 'Threats'],
+        count: 4
+    },
+    'quest-spread-five': {
+        name: 'Level Up Spread',
+        description: 'Your progression path: current level, skills to develop, boss to face, power-up available, and next stage',
+        positions: ['Current Level', 'Skills to Develop', 'Boss to Face', 'Power-Up Available', 'Next Stage'],
+        count: 5
+    },
+    'decision-making': {
+        name: 'Decision Making Spread',
+        description: 'Weigh two choices: your situation, option A, option B, what helps, and the likely outcome',
+        positions: ['Current Situation', 'Option A', 'Option B', 'What Helps You Decide', 'Likely Outcome'],
+        count: 5
+    },
+    'elemental-balance': {
+        name: 'Elemental Balance',
+        description: 'Check all aspects of self: passion, emotion, mind, body, and integration',
+        positions: ['Fire (Passion)', 'Water (Emotion)', 'Air (Mind)', 'Earth (Body)', 'Spirit (Integration)'],
+        count: 5
+    },
+    'weekly-deep-dive': {
+        name: 'Weekly Deep Dive',
+        description: 'One card for each day of the week to guide your path forward',
+        positions: ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'],
+        count: 7
+    },
     'celtic-cross': {
         name: 'Celtic Cross',
         description: 'A comprehensive 10-card spread for deep insight',
@@ -721,6 +796,7 @@ function showView(viewName) {
         'spread': 'spreadBtn',
         'calendar': 'calendarBtn',
         'gallery': 'galleryBtn',
+        'learn': 'learnBtn',
         'gameIndex': 'gameIndexBtn',
         'settings': 'settingsBtn'
     };
@@ -734,6 +810,11 @@ function showView(viewName) {
     // Special handling for gallery view
     if (viewName === 'gallery') {
         renderGallery('all');
+    }
+    
+    // Special handling for learn view
+    if (viewName === 'learn') {
+        initializeLearnTarot();
     }
     
     // Special handling for game index view
@@ -1047,7 +1128,9 @@ function saveJournal(dateString) {
         const modal = document.getElementById('cardModal');
         const draws = getDailyDraws();
         const card = draws[dateString];
-        const date = new Date(dateString + 'T00:00:00');
+        // Parse the date in local timezone
+        const [year, month, day] = dateString.split('-').map(Number);
+        const date = new Date(year, month - 1, day);
         const formattedDate = date.toLocaleDateString('en-US', { 
             weekday: 'long', 
             year: 'numeric', 
@@ -1196,7 +1279,6 @@ function renderGallery(filter) {
 function createGalleryCard(card, isReversed) {
     const cardDiv = document.createElement('div');
     cardDiv.className = 'gallery-card';
-    cardDiv.onclick = () => openCardModal(card);
 
     const slug = card.name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
     const imagePath = `assets/card-images/${slug}${isReversed ? '-reversed' : ''}.png`;
@@ -1214,6 +1296,12 @@ function createGalleryCard(card, isReversed) {
             <div class="gallery-card-game">🎮 ${card.game} 🎮</div>
         </div>
     `;
+    
+    // Set onclick AFTER innerHTML to preserve the handler
+    cardDiv.onclick = () => {
+        console.log('Gallery card clicked:', card.name);
+        openCardModal(card);
+    };
     
     return cardDiv;
 }
@@ -1373,10 +1461,12 @@ function openGameDeepDive(gameName) {
             html += '<div class="themes-label">Themes:</div>';
             html += '<div class="themes-tags">';
             gameData.themes.forEach(theme => {
-                const definition = themeDefinitions && themeDefinitions[theme] ? themeDefinitions[theme].definition : '';
+                const definition = (themeDefinitions && themeDefinitions[theme] && themeDefinitions[theme].definition) ? themeDefinitions[theme].definition : '';
+                const safeDefinition = definition ? definition.replace(/"/g, '&quot;') : '';
+                const safeTheme = theme ? theme.replace(/'/g, "\\'") : '';
                 html += `<span class="theme-tag" 
-                    data-definition="${definition.replace(/"/g, '&quot;')}"
-                    data-theme="${theme.replace(/'/g, "\\'")}">${theme}</span>`;
+                    data-definition="${safeDefinition}"
+                    data-theme="${safeTheme}">${theme}</span>`;
             });
             html += '</div></div>';
         }
@@ -1789,6 +1879,18 @@ function searchGameIndex(searchTerm) {
     renderGameIndex();
 }
 
+function setGameIndexSort(sortOrder) {
+    window.gameIndexSortOrder = sortOrder;
+    
+    // Update button states
+    document.querySelectorAll('.game-index-sort-btn').forEach(btn => {
+        btn.classList.remove('active');
+    });
+    document.getElementById(`sort-${sortOrder}`).classList.add('active');
+    
+    renderGameIndex();
+}
+
 function renderGameIndex() {
     const container = document.getElementById('gameIndexList');
     const searchTerm = window.gameIndexSearchTerm || '';
@@ -1916,14 +2018,44 @@ function renderGameIndex() {
         }
     });
     
-    // Sort games alphabetically using sortTitle
-    let sortedGames = Object.keys(gameIndex).sort((a, b) => {
-        const gameDataA = gameIndex[a];
-        const gameDataB = gameIndex[b];
-        const sortA = getSortTitle(a, typeof getGameData !== 'undefined' ? getGameData(a) : null);
-        const sortB = getSortTitle(b, typeof getGameData !== 'undefined' ? getGameData(b) : null);
-        return sortA.localeCompare(sortB);
-    });
+    // Sort games based on selected sort order
+    const sortOrder = window.gameIndexSortOrder || 'alphabetical';
+    let sortedGames;
+    
+    if (sortOrder === 'alphabetical') {
+        // Sort alphabetically using sortTitle
+        sortedGames = Object.keys(gameIndex).sort((a, b) => {
+            const sortA = getSortTitle(a, typeof getGameData !== 'undefined' ? getGameData(a) : null);
+            const sortB = getSortTitle(b, typeof getGameData !== 'undefined' ? getGameData(b) : null);
+            return sortA.localeCompare(sortB);
+        });
+    } else if (sortOrder === 'most-cards') {
+        // Sort by total card count (descending)
+        sortedGames = Object.keys(gameIndex).sort((a, b) => {
+            const countA = gameIndex[a].mainCards.length + gameIndex[a].otherCards.length;
+            const countB = gameIndex[b].mainCards.length + gameIndex[b].otherCards.length;
+            if (countB !== countA) {
+                return countB - countA; // Higher count first
+            }
+            // Tie-breaker: alphabetical
+            const sortA = getSortTitle(a, typeof getGameData !== 'undefined' ? getGameData(a) : null);
+            const sortB = getSortTitle(b, typeof getGameData !== 'undefined' ? getGameData(b) : null);
+            return sortA.localeCompare(sortB);
+        });
+    } else if (sortOrder === 'fewest-cards') {
+        // Sort by total card count (ascending)
+        sortedGames = Object.keys(gameIndex).sort((a, b) => {
+            const countA = gameIndex[a].mainCards.length + gameIndex[a].otherCards.length;
+            const countB = gameIndex[b].mainCards.length + gameIndex[b].otherCards.length;
+            if (countA !== countB) {
+                return countA - countB; // Lower count first
+            }
+            // Tie-breaker: alphabetical
+            const sortA = getSortTitle(a, typeof getGameData !== 'undefined' ? getGameData(a) : null);
+            const sortB = getSortTitle(b, typeof getGameData !== 'undefined' ? getGameData(b) : null);
+            return sortA.localeCompare(sortB);
+        });
+    }
     
     // Debug: Count games with release years by decade
     const decadeCounts = {};
@@ -1989,17 +2121,24 @@ function renderGameIndex() {
         return;
     }
     
-    // Group by first letter (using sort title)
+    // Group by first letter only when sorting alphabetically
+    const shouldGroupByLetter = sortOrder === 'alphabetical';
     const groupedGames = {};
-    sortedGames.forEach(game => {
-        const gameData = typeof getGameData !== 'undefined' ? getGameData(game) : null;
-        const sortTitle = getSortTitle(game, gameData);
-        const firstLetter = sortTitle.charAt(0).toUpperCase();
-        if (!groupedGames[firstLetter]) {
-            groupedGames[firstLetter] = [];
-        }
-        groupedGames[firstLetter].push(game);
-    });
+    
+    if (shouldGroupByLetter) {
+        sortedGames.forEach(game => {
+            const gameData = typeof getGameData !== 'undefined' ? getGameData(game) : null;
+            const sortTitle = getSortTitle(game, gameData);
+            const firstLetter = sortTitle.charAt(0).toUpperCase();
+            if (!groupedGames[firstLetter]) {
+                groupedGames[firstLetter] = [];
+            }
+            groupedGames[firstLetter].push(game);
+        });
+    } else {
+        // For card count sorting, use a single group
+        groupedGames['all'] = sortedGames;
+    }
     
     // Build HTML with letter headers
     let html = '';
@@ -2017,7 +2156,10 @@ function renderGameIndex() {
     const letters = Object.keys(groupedGames).sort();
     
     letters.forEach(letter => {
-        html += `<div class="letter-header" id="letter-${letter}">${letter}</div>`;
+        // Only show letter header if we're grouping by letter
+        if (shouldGroupByLetter) {
+            html += `<div class="letter-header" id="letter-${letter}">${letter}</div>`;
+        }
         
         groupedGames[letter].forEach(game => {
             const gameData = gameIndex[game];
@@ -2340,12 +2482,12 @@ function initializeGameIndexFilters() {
             ],
             'Gameplay-Themed Tags': [
                 'Alchemy System', 'Base Building', 'Boss Challenges', 'Competition Games', 'Cooking',
-                'Cooperative Single-Player', 'Crafting & Creativity', 'Daily Life Challenges', 'Dungeon Crawling',
-                'Elemental Powers', 'Environmental Puzzles', 'Farming Life', 'Investigation & Deduction', 'Job System',
-                'Logic Puzzles', 'Permanent Consequences', 'Personal Expression', 'Player-Directed Progression',
-                'Procedural Environments', 'Psychic Abilities', 'Push Your Luck', 'Resource Management',
-                'Settlement Management', 'Stealth Approaches', 'Strategic Planning', 'Stylish Combat', 'Survival',
-                'Synergy Chasing', 'Time Management Pressure'
+                'Cooperative Single-Player', 'Crafting & Creativity', 'Creature Collection', 'Daily Life Challenges', 
+                'Dungeon Crawling', 'Elemental Powers', 'Environmental Puzzles', 'Farming Life', 
+                'Investigation & Deduction', 'Job System', 'Logic Puzzles', 'Permanent Consequences', 
+                'Personal Expression', 'Player-Directed Progression', 'Procedural Environments', 'Psychic Abilities', 
+                'Push Your Luck', 'Resource Management', 'Settlement Management', 'Stealth Approaches', 
+                'Strategic Planning', 'Stylish Combat', 'Survival', 'Synergy Chasing', 'Time Management Pressure'
             ],
             'Horror': [
                 'Body Horror', 'Cosmic Horror', 'Cute-Horror Contrast', 'Gothic Horror', 'Psychological Horror',
@@ -2625,4 +2767,101 @@ function scrollToGameIndexTop() {
         // Fallback to top of page
         window.scrollTo({ top: 0, behavior: 'smooth' });
     }
+}
+// Learn Tarot Functions
+function showLearnSection(sectionName) {
+    // Hide all learn sections
+    document.querySelectorAll('.learn-section').forEach(section => {
+        section.classList.remove('active');
+    });
+    
+    // Remove active from all learn nav buttons
+    document.querySelectorAll('.learn-nav-btn').forEach(btn => {
+        btn.classList.remove('active');
+    });
+    
+    // Show selected section
+    document.getElementById(sectionName).classList.add('active');
+    
+    // Activate clicked button
+    document.getElementById(`learn-${sectionName}`).classList.add('active');
+    
+    // Scroll to top of learn content
+    const learnContent = document.querySelector('.learn-content');
+    if (learnContent) {
+        learnContent.scrollTop = 0;
+    }
+    
+    // Special handling for Major Arcana section
+    if (sectionName === 'major') {
+        renderMajorArcanaList();
+    }
+}
+
+function initializeLearnTarot() {
+    // Populate Major Arcana list if we're starting on that tab
+    const majorSection = document.getElementById('major');
+    if (majorSection && majorSection.classList.contains('active')) {
+        renderMajorArcanaList();
+    }
+}
+
+function renderMajorArcanaList() {
+    const container = document.getElementById('majorArcanaList');
+    if (!container) return;
+    
+    // Fool's Journey descriptions - traditional meaning + gaming parallel
+    const foolsJourney = {
+        0: { traditional: "New beginnings, stepping into the unknown with faith", gaming: "Starting a new game with everything to learn" },
+        1: { traditional: "Manifestation, mastering your tools and will", gaming: "Tutorial complete - learning your abilities" },
+        2: { traditional: "Intuition, accessing hidden knowledge", gaming: "Discovering secrets and hidden lore" },
+        3: { traditional: "Creativity, nurturing ideas into being", gaming: "Creative mode - building your world" },
+        4: { traditional: "Structure, establishing order and authority", gaming: "Claiming territory and building your base" },
+        5: { traditional: "Tradition, seeking wisdom from teachers", gaming: "Finding the mentor NPC" },
+        6: { traditional: "Choice, decisions that define your values", gaming: "Branching path that shapes your playthrough" },
+        7: { traditional: "Willpower, directing your journey with determination", gaming: "Taking control of the campaign" },
+        8: { traditional: "Inner strength through compassion and courage", gaming: "Boss fight won with heart, not force" },
+        9: { traditional: "Solitude, withdrawing to find inner wisdom", gaming: "Solo campaign to grind skills" },
+        10: { traditional: "Fate, cycles beyond your control", gaming: "RNG - accepting what the game throws at you" },
+        11: { traditional: "Truth and balance, facing consequences", gaming: "Morality system - choices have weight" },
+        12: { traditional: "Surrender, new perspective through letting go", gaming: "Stuck on a level until you change approach" },
+        13: { traditional: "Transformation through necessary endings", gaming: "Game over before the real journey begins" },
+        14: { traditional: "Balance, integrating opposites harmoniously", gaming: "Multiclassing - combining different builds" },
+        15: { traditional: "Shadow, confronting bondage and temptation", gaming: "Addiction mechanic you can't quit" },
+        16: { traditional: "Upheaval, structures suddenly collapse", gaming: "System crash - everything falls apart" },
+        17: { traditional: "Hope, healing and renewed faith", gaming: "Save point after the nightmare level" },
+        18: { traditional: "Facing illusions, fears, and the unknown", gaming: "Navigating fog of war and jumpscares" },
+        19: { traditional: "Clarity, joy, and enlightened success", gaming: "Victory theme plays - you did it" },
+        20: { traditional: "Awakening to higher calling and purpose", gaming: "Final summons to face your destiny" },
+        21: { traditional: "Completion, mastery and wholeness achieved", gaming: "Credits roll - New Game+ unlocked" }
+    };
+    
+    let html = '';
+    
+    tarotDeck.majorArcana.forEach(card => {
+        const journey = foolsJourney[card.number];
+        let journeyHtml = '';
+        if (journey) {
+            journeyHtml = `
+                <div class="major-card-journey">
+                    <div class="journey-traditional">${journey.traditional}</div>
+                    <div class="journey-gaming">🎮 ${journey.gaming}</div>
+                </div>
+            `;
+        }
+        
+        html += `
+            <div class="major-card-item" onclick="openCardModal(${JSON.stringify(card).replace(/"/g, '&quot;')})">
+                <div class="major-card-number">${card.number}</div>
+                <div class="major-card-content">
+                    <div class="major-card-name">${card.name}</div>
+                    <div class="major-card-game">🎮 ${card.game}</div>
+                    <div class="major-card-keywords">${card.keywords ? card.keywords.split(' • ').slice(0, 3).join(' • ') : ''}</div>
+                    ${journeyHtml}
+                </div>
+            </div>
+        `;
+    });
+    
+    container.innerHTML = html;
 }

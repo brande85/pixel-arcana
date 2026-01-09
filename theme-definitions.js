@@ -242,7 +242,7 @@ const themeDefinitions = {
     
     "Cooking": {
         definition: "Cooking mechanics as a significant system - preparing meals, learning recipes, and food crafting affecting gameplay.",
-        examples: ["Final Fantasy XV", "Monster Hunter World", "Stardew Valley"]
+        examples: ["Final Fantasy XV", "Monster Hunter: World", "Stardew Valley"]
     },
 
     "Cooperative Single-Player": {
@@ -253,6 +253,11 @@ const themeDefinitions = {
     "Crafting & Creativity": {
         definition: "Systems for building, crafting, or creating things from raw materials.",
         examples: ["Animal Crossing: New Horizons"]
+    },
+
+    "Creature Collection": {
+        definition: "Collecting, cataloging, or befriending creatures, monsters, or companions as a core gameplay loop.",
+        examples: ["Pokémon Red & Blue"]
     },
 
     "Daily Life Challenges": {
@@ -535,6 +540,11 @@ const themeDefinitions = {
         examples: ["Dragon Quest V: Hand of the Heavenly Bride", "Harvest Moon: A Wonderful Life"]
     },
 
+    "Medical Themes": {
+        definition: "Games exploring medicine, disease treatment, surgery, or healthcare systems. Medical professionals, hospitals, or healing as central elements.",
+        examples: ["To the Moon", "Two Point Hospital"]
+    },
+
     "Memory & Identity": {
         definition: "Exploring themes of lost memories, false identities, or discovering who you truly are.",
         examples: ["Final Fantasy VII", "Disco Elysium", "NieR: Automata"]
@@ -563,6 +573,11 @@ const themeDefinitions = {
     "Small-Town Stories": {
         definition: "Intimate narratives set in close-knit rural communities where everyone knows everyone.",
         examples: ["Harvest Moon 64"]
+    },
+
+    "Space Opera": {
+        definition: "Epic space adventures with galaxy-spanning conflicts, dramatic personal stakes, multiple alien species, and grand space-fantasy storytelling.",
+        examples: ["Mass Effect"]
     },
 
     "Tragic Fate": {
@@ -974,6 +989,16 @@ const themeDefinitions = {
     "Underwater Setting": {
         definition: "Significant portions set beneath the ocean's surface in aquatic environments.",
         examples: ["Abzû", "Ecco the Dolphin"]
+    },
+
+    "Urban Setting": {
+        definition: "Games set in cities, metropolitan areas, or urban environments.",
+        examples: ["Parasite Eve"]
+    },
+
+    "Western Setting": {
+        definition: "Wild West settings with cowboys, outlaws, frontier towns, and American Old West atmosphere and/or Wild West-inspired settings.",
+        examples: ["Wild Arms 2"]
     },
 
     // ===== WORLD STATES & CONDITIONS =====
